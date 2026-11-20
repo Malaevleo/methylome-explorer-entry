@@ -1,0 +1,30 @@
+{
+  "features_url": "https://github.com/rsinghlab/AltumAge/tree/main/example_dependencies",
+  "annotation_url": "https://zhouserver.research.chop.edu/InfiniumAnnotation/HM450/",
+  "input_sha256": {
+    "features": "068ed91ba02ec575262c7e9d0857eb9589224e478b8f2a9181c0fbcb0e26359d",
+    "scaler": "68331c0b8974c192460e2ebf31e4a974da3292775f82c52d54a11dea629ff53d",
+    "manifest": "668a11ea624b3e645aab963dca048bdd4628ae5d297732867c91525c831cf191"
+  },
+  "model_inputs": 20318,
+  "hm450_chr21": 226,
+  "consensus_chr21": 220,
+  "benchmark_eligible_chr21": 219,
+  "benchmark_eligible_consensus": 218,
+  "donors": 87,
+  "folds": 5,
+  "repeats": 2,
+  "nominal_depths": [
+    0.05,
+    0.25,
+    1.0,
+    2.0
+  ],
+  "truth": "50% of original per-CpG counts reserved, with >=10 reads required at a scored site",
+  "query": "hypergeometric sampling from the other 50%; mean depth based on the indexed chr21 sites",
+  "fusion": "three disjoint calibration donors per fold; profile fused uses the research BLUP kappa",
+  "example": "IHECRE00000004_Neutrophil",
+  "example_rule": "median original chr21 coverage among the eligible donors, first thinning draw",
+  "optimizer_failures": [],
+  "seed": 731921
+}
