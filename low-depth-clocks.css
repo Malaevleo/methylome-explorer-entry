@@ -1,0 +1,31 @@
+.ld-clocks { margin-bottom: 30px; color: var(--ink); font-size: 1rem; }
+.ld-clocks .section-heading { margin-bottom: 12px; }
+.ld-clocks p { line-height: 1.55; }
+.ld-card { padding: clamp(12px, 2.5vw, 23px); margin-bottom: 14px; }
+.ld-card h3 { margin: 0 0 12px; }
+.ld-card .button { margin-top: 12px; }
+.ld-controls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 14px; }
+.ld-audit-controls { grid-template-columns: minmax(0, 300px); }
+.ld-field { display: flex; flex-direction: column; gap: 6px; font-size: .9rem; }
+.ld-field select { min-height: 42px; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); }
+.ld-note { color: #57685e; font-size: .875rem; }
+.ld-callout { padding: 9px 13px; border-radius: 6px; background: var(--soft); }
+.ld-card td, .ld-card th { padding: 10px 12px; font-size: .875rem; }
+.ld-card tbody th { background: var(--paper); color: var(--ink); font-weight: 600; letter-spacing: 0; text-transform: none; border-top: 1px solid var(--line); }
+.ld-card td { font-variant-numeric: tabular-nums; }
+.ld-card .table-wrap { margin-top: 10px; }
+.ld-bar-cell { display: grid; grid-template-columns: minmax(52px, 1fr) 3.3rem; align-items: center; gap: 8px; }
+.ld-bar-cell > span:last-child { text-align: right; }
+.ld-bar-track { display: block; height: 7px; border-radius: 8px; background: var(--soft); }
+.ld-bar-track i { display: block; height: 100%; border-radius: inherit; background: #879f91; }
+.ld-bar-track i.ld-best { background: var(--green); }
+.ld-protocol summary { cursor: pointer; font-weight: 600; }
+.ld-protocol a { color: var(--green); }
+@media (max-width: 650px) { .ld-controls { grid-template-columns: 1fr; } }
+
+.ld-callout:has(.ld-depth-summary) { margin-bottom: 14px; }
+.ld-depth-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px 12px; margin: 10px 0 0; }
+.ld-depth-summary div { border-top: 1px solid var(--line); padding-top: 6px; }
+.ld-depth-summary dt { font-size: .875rem; }
+.ld-depth-summary dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; }
+.ld-callout > .ld-note { display: block; }
