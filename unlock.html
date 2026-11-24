@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Unlock Methylome Research Explorer</title>
+  <style>
+    :root { font: 16px system-ui; color: #20372f; background: #f7f8f4; }
+    body { min-height: 100vh; min-height: 100dvh; margin: 0; padding: 24px; box-sizing: border-box; display: grid; place-items: center; }
+    main { width: min(100%, 400px); }
+    form { background: white; border: 1px solid #dfe5dd; border-radius: 14px; padding: 28px; }
+    h1 { font: 500 31px/1.08 Georgia, serif; margin: 0 0 20px; }
+    label { display: block; margin-bottom: 7px; font-weight: 600; }
+    input, button { width: 100%; box-sizing: border-box; border: 1px solid #b8c9be; border-radius: 6px; padding: 11px; font: inherit; }
+    button { margin-top: 13px; background: #296b52; color: white; border-color: #296b52; cursor: pointer; }
+    button:disabled { opacity: .7; cursor: wait; }
+    :focus-visible { outline: 3px solid #d79e48; outline-offset: 3px; }
+    p { margin: 12px 0 0; color: #913b2f; }
+    p:empty { display: none; }
+  </style>
+</head>
+<body>
+  <main>
+    <form method="post">
+      <h1>Methylome Research Explorer</h1>
+      <label for="password">Site password</label>
+      <input id="password" type="password" autocomplete="current-password" required>
+      <button type="submit">Unlock site</button>
+      <p id="message" role="alert"></p>
+      <noscript><p>Enable JavaScript to unlock the dashboard.</p></noscript>
+    </form>
+  </main>
+  <script type="module">
+    const form = document.querySelector('form');
+    const input = document.getElementById('password');
+    const button = form.querySelector('button');
+    const message = document.getElementById('message');
+    const expectedHash = '6765c0a7a29065fec9b043c6b82e485b10f6298d765e009a3af78f800b165964';
+
+    async function loadBundle(subtle) {
+      const response = await fetch(`dashboard-${expectedHash}.enc`);
+      if (!response.ok) throw new Error('Unable to load dashboard');
+      const bytes = new Uint8Array(await response.arrayBuffer());
+      const hash = Array.from(new Uint8Array(await subtle.digest('SHA-256', bytes)),
+        byte => byte.toString(16).padStart(2, '0')).join('');
+      if (hash !== expectedHash) {
+        throw new Error('The encrypted dashboard download did not match this release.', {cause: 'bundle-mismatch'});
+      }
+      return bytes;
+    }
+
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      button.disabled = true;
+      button.textContent = 'Unlocking…';
+      message.textContent = '';
+      const password = input.value;
+      input.value = '';
+
+      try {
+        const {subtle} = window.crypto;
+        const bytes = await loadBundle(subtle);
+        const salt = bytes.slice(0, 16);
+        const iv = bytes.slice(16, 28);
+        const passwordKey = await subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']);
+        const key = await subtle.deriveKey({name: 'PBKDF2', hash: 'SHA-256', salt, iterations: 600_000},
+          passwordKey, {name: 'AES-GCM', length: 256}, false, ['decrypt']);
+        const plaintext = await subtle.decrypt({name: 'AES-GCM', iv}, key, bytes.slice(28));
+        const {html, scripts} = JSON.parse(new TextDecoder().decode(plaintext));
+        const page = new DOMParser().parseFromString(html, 'text/html');
+        const scriptURLs = [];
+        for (const script of page.querySelectorAll('script[src]')) {
+          const src = script.getAttribute('src');
+          if (!Object.hasOwn(scripts, src)) continue;
+          const url = URL.createObjectURL(new Blob([scripts[src]], {type: 'text/javascript'}));
+          script.setAttribute('src', url);
+          scriptURLs.push(url);
+        }
+
+        // The authenticated HTML is our dashboard. Reparse it so its scripts run in order.
+        document.open();
+        window.addEventListener('load', () => {
+          for (const url of scriptURLs) URL.revokeObjectURL(url);
+        }, {once: true});
+        document.write('<!doctype html>\n' + page.documentElement.outerHTML);
+        document.close();
+      } catch (error) {
+        if (error.cause === 'bundle-mismatch') {
+          message.textContent = error.message + ' Reload and try again.';
+        } else if (error.name === 'OperationError') {
+          message.textContent = 'That password did not unlock this dashboard release.';
+        } else {
+          message.textContent = 'The dashboard could not load. Please try again.';
+        }
+        button.disabled = false;
+        button.textContent = 'Unlock site';
+        input.focus();
+      }
+    });
+  </script>
+</body>
+</html>
